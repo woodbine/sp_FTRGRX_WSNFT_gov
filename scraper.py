@@ -85,7 +85,7 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "FTRGRX_WSNFT_gov"
-url = "http://www.wsh.nhs.uk/AboutUs/FOI/2Whatwespendandhowwespendit.aspx"
+url = "http://www.wsh.nhs.uk/Corporate-information/Information-we-publish/Freedom-of-information/What-we-spend-and-how-we-spend-it.aspx"
 errors = 0
 data = []
 
@@ -98,28 +98,14 @@ soup = BeautifulSoup(html, 'lxml')
 #### SCRAPE DATA
 
 
-for i in range(1, 5):
-    url_page = "http://www.wsh.nhs.uk/AboutUs/FOI/2Whatwespendandhowwespendit.aspx?GenericList_List_GoToPage={}".format(i)
-    html_page = urllib2.urlopen(url_page)
-    soup_page = BeautifulSoup(html_page, 'lxml')
-    blocks = soup_page.find('div', 'sys_itemslist').find_all('h3')
-    for block in blocks:
-        link = block.find('a')
-        if not '.pdf' in link['href']:
-            url = 'http://www.wsh.nhs.uk' + link['href']
-            if 'Year' in link.text:
-                csvMth = 'Y1'
-                csvYr = link.text.split()[-1][:4]
-            elif 'FY' in link.text:
-                csvMth = 'Y1'
-                csvYr = link.text.split('FY')[-1][:4]
-            else:
-                csvMth = link.text.split()[-1][:3]
-                csvYr = '20' + link.text.split()[-1][-2:]
+blocks = soup.find_all('a')
+for block in blocks:
+    if 'spend value' in block.text:
+            url = 'http://www.wsh.nhs.uk' + block['href']
+            csvYr = block.text.split()[-1]
+            csvMth = block.text.split()[-2][:3]
             csvMth = convert_mth_strings(csvMth.upper())
             data.append([csvYr, csvMth, url])
-
-
 
 
 #### STORE DATA 1.0
